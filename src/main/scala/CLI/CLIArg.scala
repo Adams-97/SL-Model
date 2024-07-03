@@ -24,5 +24,15 @@ object CLIArg {
       }
     }
   }
+
+  implicit val MandatoryCLIArg: Set[mandatoryCLIArg] = Set(modeArg)
+  def checkMandatoryArgs(CLIArgs: Seq[CLIArg])(implicit MandatoryCLIArg: Set[mandatoryCLIArg]):
+  Either[MandatoryCLIArgsNotPresentError,Seq[CLIArg]] = {
+
+    val convertCLIToSet = CLIArgs.collect({case mandatoryArg: mandatoryCLIArg => mandatoryArg}).toSet
+    val crossReferencedSeq = MandatoryCLIArg.diff(convertCLIToSet)
+
+    if (crossReferencedSeq.isEmpty) Right(CLIArgs)
+    else Left(MandatoryCLIArgsNotPresentError(crossReferencedSeq))
   }
 }
