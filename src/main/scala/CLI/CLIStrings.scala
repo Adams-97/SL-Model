@@ -12,7 +12,7 @@ object CLIStrings {
       | example: eg [--help] [-c]
       | options:
       |   --help: Prints out help output seen currently.
-      |   [-c, --config]: Provide JSON config file location. Defaults to project directory.
+      |   [-c, --config]: Provide JSON config file location. Defaults to src/main/resources.
       |   -m, --mode: Select which mode you want. (1= ,2= ,3= )
       |""".stripMargin
 
