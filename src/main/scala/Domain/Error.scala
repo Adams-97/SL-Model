@@ -1,13 +1,16 @@
 package Domain
 
 import CLI.CLIStrings._
-import CLI.mandatoryCLIArg
+import CLI.{mandatoryCLIArg,unknownArg}
+import CLI.CLIArg
 
 sealed trait Error {
   /**
    * Human readable description of error
    */
   def description: ErrorMsg
+
+  def ElemPrinter[A](iter: Iterable[A]): Unit = iter.foreach(println)
 }
 
 case object ValidationError extends Error {
@@ -27,10 +30,24 @@ case class HelpArgError(errMsg: ErrorMsg) extends Error {
 
 case class MandatoryCLIArgsNotPresentError(argsNotPresent: Set[mandatoryCLIArg]) extends Error {
   def description: ErrorMsg = {
-    ErrorMsg(s"${this.getClass.getSimpleName}: Below mandatory args not present ${seqElemPrinter(argsNotPresent)}")
+    ErrorMsg(s"${this.getClass.getSimpleName}: Below mandatory args not present ${ElemPrinter(argsNotPresent)}")
+  }
+}
+
+case class UnknownArgError(seqErr: Seq[unknownArg]) extends Error {
+  def description: ErrorMsg = ErrorMsg(s"${UnknownArgError.productPrefix}: Below arguments aren't understood ${ElemPrinter(errSeq)}")
+}
+
+case object UnknownArgError {
+  def getUnknownArgs(errSeq: Seq[CLIArg]): UnknownArgError = {
+    UnknownArgError(errSeq.collect({ case CLIArg: unknownArg => CLIArg }))
   }
 
-  private def seqElemPrinter[A](seq: Set[A]): Unit = seq.foreach(println)
+  def checkUnknownErr(CLISeq: Seq[CLIArg]): Either[UnknownArgError,Seq[CLIArg]] = {
+    val UnknownSeq = getUnknownArgs(CLISeq)
+    if (UnknownSeq.seqErr.isEmpty) Left(UnknownSeq)
+    else Right(CLISeq)
+  }
 }
 
 final case class ErrorMsg(value: String)

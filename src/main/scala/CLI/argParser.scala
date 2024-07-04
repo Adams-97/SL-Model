@@ -2,15 +2,18 @@ package CLI
 
 import Domain._
 import CLI.CLIStrings._
-import CLI.CLIArg.getCLIArg
+import CLI.CLIArg.{checkMandatoryArgs, getCLIArg}
+import Domain.UnknownArgError
 
 object argParser {
 
   def parseArgs(arrOfArgs: Array[String]): Either[Error,Seq[CLIArg]]= {
     val listArgs = checkForNoArgs(arrOfArgs.toVector)
     val helpcheck = listArgs.flatMap(checkForHelpArg)
+    val CLIArgSeq = helpcheck.map(strArgs => getCLIArg(strArgs))
+    val mandatoryCheck = CLIArgSeq.flatMap(checkMandatoryArgs)
+    mandatoryCheck.flatMap(UnknownArgError.checkUnknownErr)
   }
-
 
   def checkForNoArgs[A](args: Seq[A]): Either[NoCLIArgError.type,Seq[A]] =
     if (args.isEmpty) Left(NoCLIArgError)

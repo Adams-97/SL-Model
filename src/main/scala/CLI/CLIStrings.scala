@@ -19,6 +19,4 @@ object CLIStrings {
   val TOO_MANY_HELP = "Invalid arguments, help must only go at the start"
 
   val BAD_HELP = "Help option must me only argument at the start"
-
-  def getUnkownString(cause: String): String = s"Unknown command or argument: $cause"
 }
